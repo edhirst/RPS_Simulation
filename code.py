@@ -17,17 +17,22 @@ from matplotlib.font_manager import FontProperties
 # Main hyperparameters
 number_balls = 10
 max_velocity = 2.
+save = False
 
 # Further hyperparameters
 arena_radius = 10.
 ball_radius = min(1.,np.sqrt((4*arena_radius)*0.35/number_balls))
-random_balltype_init = False
-bounce = True
+random_balltype_init = False #...when True the ball species are initialised completely randomly
+bounce = True                #...when False balls only bounce off the boundary and not each other
 
-bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
-dt = 0.1
+# Bonus ball hyperparameters
 bonus_ball = False
-bonus_radius = 5.
+bonus_radius = 3*ball_radius
+
+# Other hyperparameters
+bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
+centre_bounds = [ball_radius-arena_radius, arena_radius-ball_radius]
+dt = 0.1 #...the timestep of the simulation
 
 # Define the game rules
 rules = {
@@ -121,6 +126,11 @@ def resolve_collision(ball1, ball2):
     if overlap > 0: 
         ball1.position -= normal * 1.01 * overlap / 2
         ball2.position += normal * 1.01 * overlap / 2
+        
+        # Ensure the positions are within the bounding box
+        ball1.position = np.clip(ball1.position, *centre_bounds)
+        ball2.position = np.clip(ball2.position, *centre_bounds)
+        
     return
 
 def animate(i, balls, ax, dt, bounds):
@@ -150,12 +160,13 @@ def animate(i, balls, ax, dt, bounds):
         ab = AnnotationBbox(imagebox, (0.42, 0.35), frameon=False, xycoords='axes fraction', box_alignment=(0.5, 0.3))
         ax.add_artist(ab)
         # Add the crown image
-        crown_img = mpimg.imread('crown.png')
+        crown_img = mpimg.imread(image_pathroot+'crown.png')
         crown_imagebox = OffsetImage(crown_img, zoom=0.3)
         crown_ab = AnnotationBbox(crown_imagebox, (0.58, 0.35), frameon=False, xycoords='axes fraction', box_alignment=(0.5, 0.3))
         ax.add_artist(crown_ab)
                 
         ani.event_source.stop()
+        #plt.close()
     
     return artists
 
@@ -232,5 +243,13 @@ else:
             balls.append(new_ball)
 
 # Create the animation
-ani = animation.FuncAnimation(fig, animate, fargs=(balls, ax, dt, bounds), frames=200, interval=20, blit=False)
+max_frames = 200
+ani = animation.FuncAnimation(fig, animate, fargs=(balls, ax, dt, bounds), frames=max_frames, interval=20, blit=False)
+
+# Save the animation
+if save:
+    seed = np.random.randint(1e4)
+    ani.save(f'./runs/RPS_sim_(balls={number_balls},speed={max_velocity})_{seed}.mp4', writer='ffmpeg', fps=30)
+        
+# Show the animation
 plt.show()
