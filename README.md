@@ -1,5 +1,5 @@
 # RPS_Simulation
-Simulation of bouncing balls, interacting via rock-paper-scissors on collision.  
+
 ------------------------------------------------------------------------
 
 The `code.py` script lists hyperparameters for the simulation that can be edited; noteworthy ones being: number of balls, the ball radius, the arena radius, the ball maximum initial speed.
