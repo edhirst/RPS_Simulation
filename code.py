@@ -1,12 +1,9 @@
 '''
 Code to simulate rock-paper-scissors swarm game
-...to do:
-    ~ check of objects outside boundary, think the shift on 2-ball collision puts the objects outside boundary?
-    ~ recording
-    ~ large face image
-    
-...remember to set the python>preferences>IpythonConsole>Graphics>Backend>Automatic !
-(read through my code, and copy into the GPT code below (use the Documents/UG/Lab/Computing/Y2FinalCode.py as reference))
+...to run:
+    ~ ensure filepath for images is correct
+    ~ set hyperparameters as desired
+    ~ run script
 '''
 # Import libraries
 import os
@@ -17,22 +14,18 @@ import matplotlib.image as mpimg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.font_manager import FontProperties
 
-#Define font style
-font = FontProperties()
-font.set_family('copperplate')
-font.set_size(30)
-font.set_weight('bold')
-
-# Hyperparameters
-number_balls = 7
-random_balltype_init = False
-bounce = True
-arena_radius = 10.
-bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
-dt = 0.1
-ball_radius = 1.
+# Main hyperparameters
+number_balls = 10
 max_velocity = 2.
 
+# Further hyperparameters
+arena_radius = 10.
+ball_radius = min(1.,np.sqrt((4*arena_radius)*0.35/number_balls))
+random_balltype_init = False
+bounce = True
+
+bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
+dt = 0.1
 bonus_ball = False
 bonus_radius = 5.
 
@@ -44,11 +37,18 @@ rules = {
 }
 
 # Load images
+image_pathroot = './Images/'
 images = {
-    'rock': mpimg.imread('rock.png'),
-    'paper': mpimg.imread('paper.png'),
-    'scissors': mpimg.imread('scissors.png'),
+    'rock': mpimg.imread(image_pathroot+'rock.png'),
+    'paper': mpimg.imread(image_pathroot+'paper.png'),
+    'scissors': mpimg.imread(image_pathroot+'scissors.png'),
 }
+
+# Define font style
+font = FontProperties()
+font.set_family('copperplate')
+font.set_size(30)
+font.set_weight('bold')
 
 class Ball:
     def __init__(self, kind, radius=1., position=None, velocity=None):
@@ -127,20 +127,7 @@ def animate(i, balls, ax, dt, bounds):
     
     for ball in balls:
         ball.update_position(dt, bounds)
-    '''
-    global previous_collisions
-    current_collisions = set()
-    for j in range(len(balls)):
-        for k in range(j + 1, len(balls)):
-            if check_collision(balls[j], balls[k]):
-                # Create a unique identifier for the ball pair
-                pair = tuple(sorted((j, k)))
-                if pair not in previous_collisions:
-                    resolve_collision(balls[j], balls[k])
-                    current_collisions.add(pair)
-    
-    previous_collisions = current_collisions
-    '''
+        
     for j in range(len(balls)):
         for k in range(j + 1, len(balls)):
             if check_collision(balls[j], balls[k]):
@@ -244,8 +231,6 @@ else:
                 overlap = is_overlapping(new_ball, balls)
             balls.append(new_ball)
 
-# Global variable to track collisions from the previous frame
-previous_collisions = set()
-
 # Create the animation
 ani = animation.FuncAnimation(fig, animate, fargs=(balls, ax, dt, bounds), frames=200, interval=20, blit=False)
+plt.show()
