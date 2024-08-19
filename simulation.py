@@ -398,5 +398,6 @@ def simulation(number_balls: int, max_velocity: float):
             yield (
                 b"--frame\r\n" b"Content-Type: image/png\r\n\r\n" + buf.read() + b"\r\n"
             )
+            buf.close()
 
     return generate_frames()
