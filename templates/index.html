@@ -29,11 +29,9 @@
                 },
                 body: JSON.stringify({ param1, param2 })
             })
-            .then(response => response.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const newWindow = window.open(url);
-                newWindow.document.write('<video controls autoplay src="' + url + '"></video>');
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = JSON.stringify(data);
             });
         });
     </script>
