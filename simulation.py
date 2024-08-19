@@ -6,7 +6,7 @@ Code to simulate rock-paper-scissors swarm game
     ~ run script
 """
 
-from flask import send_file
+from io import BytesIO
 from typing import Dict, List
 
 import matplotlib.animation as animation
@@ -14,6 +14,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 # Import libraries
 import numpy as np
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 
@@ -386,8 +387,16 @@ def simulation(number_balls: int, max_velocity: float):
         cache_frame_data=False,
     )
 
-    filename = 'animation.gif'
-    writer = animation.PillowWriter(fps=20)
-    
-    ani.save(filename, writer=writer)
-    return send_file(filename, mimetype='image/gif')
+    # Create a generator to yield frames
+    def generate_frames():
+        for frame in range(ani.save_count):
+            canvas = FigureCanvas(fig)
+            canvas.draw()
+            buf = BytesIO()
+            canvas.print_png(buf)
+            buf.seek(0)
+            yield (
+                b"--frame\r\n" b"Content-Type: image/png\r\n\r\n" + buf.read() + b"\r\n"
+            )
+
+    return generate_frames()
