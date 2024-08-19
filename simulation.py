@@ -282,7 +282,7 @@ def build_balls(
 
 
 # MOCK CODE TO TEST
-def simultation(param1, param2):
+def simulation(param1, param2):
     fig, ax = plt.subplots()
     xdata, ydata = [], []
     ln, = plt.plot([], [], 'r', animated=True)
