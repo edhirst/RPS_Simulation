@@ -103,7 +103,7 @@ def resolve_collision(ball1, ball2, centre_bounds):
         
     return
 
-def animate(balls, ax, dt, bounds, centre_bounds):
+def animate(balls, ax, dt, bounds, centre_bounds, ani):
     for ball in balls:
         ball.update_position(dt, bounds)
         
@@ -144,6 +144,14 @@ def animate(balls, ax, dt, bounds, centre_bounds):
         #plt.close()
     
     return artists
+
+# Create a placeholder for ani
+ani = None
+
+# Define the animate function with the placeholder ani
+def animate_with_ani(*args):
+    return animate(*args, ani)
+
 
 # Define positon overlap check function
 def is_overlapping(new_ball, balls):
@@ -240,7 +248,7 @@ def simulation(number_balls, max_velocity):
 
     # Create the animation
     max_frames = 200
-    ani = animation.FuncAnimation(fig, animate, fargs=(balls, ax, dt, bounds, centre_bounds), frames=max_frames, interval=20, blit=False)
+    ani = animation.FuncAnimation(fig, animate_with_ani, fargs=(balls, ax, dt, bounds, centre_bounds), frames=max_frames, interval=20, blit=False)
 
     # Save the animation
     # if save:
