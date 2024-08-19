@@ -11,6 +11,8 @@ from typing import List, Dict
 import matplotlib.animation as animation
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+import io
+import base64
 
 # Import libraries
 import numpy as np
@@ -298,10 +300,15 @@ def simulation(param1, param2):
         ln.set_data(xdata, ydata)
         return ln,
 
+
     ani = animation.FuncAnimation(fig, update, frames=np.linspace(0, 2 * np.pi, 128),
                                 init_func=init, blit=True, interval=50)
 
-    ani.save('sine_wave_animation.mp4', writer='ffmpeg')
+    buf = io.BytesIO()
+    ani.save(buf, format='gif')
+    buf.seek(0)
+    img_data = base64.b64encode(buf.read()).decode('utf-8')
+    return f'<img src="data:image/gif;base64,{img_data}" />'
 
 
 

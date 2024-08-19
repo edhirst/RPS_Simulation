@@ -22,17 +22,8 @@
             const param1 = document.getElementById('param1').value;
             const param2 = document.getElementById('param2').value;
 
-            fetch('/run_simulation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ param1, param2 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('result').innerText = JSON.stringify(data);
-            });
+            const url = `/run_simulation?param1=${encodeURIComponent(param1)}&param2=${encodeURIComponent(param2)}`;
+            window.open(url, '_blank');
         });
     </script>
 </body>
