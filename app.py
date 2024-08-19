@@ -23,8 +23,8 @@ def index():
 
 @app.route('/run_simulation')
 def run_simulation():
-    number_balls = request.args.get('param1')
-    max_velocity = request.args.get('param2')
+    number_balls = int(request.args.get('param1'))
+    max_velocity = float(request.args.get('param2'))
 
     # hyperparameters = request.json
     # # Extract hyperparameters from the request
