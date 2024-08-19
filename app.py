@@ -130,12 +130,10 @@ def run_simulation():
     )
 
     # Create the animation
-    max_frames = 200
     ani = animation.FuncAnimation(
         fig,
         animate,
         fargs=(balls, ax, dt, bounds, centre_bounds),
-        frames=max_frames,
         interval=20,
         blit=False,
     )
