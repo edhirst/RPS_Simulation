@@ -39,7 +39,7 @@ def run_simulation():
 
     # Save the animation to a buffer
     buf = io.BytesIO()
-    ani.save(buf, format='gif')
+    ani.save(buf, writer='imagemagick')
     buf.seek(0)
     img_data = base64.b64encode(buf.read()).decode('utf-8')
 
