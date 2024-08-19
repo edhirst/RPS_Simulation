@@ -389,8 +389,11 @@ def simulation(number_balls: int, max_velocity: float):
     # Save animation to a BytesIO buffer and yield frames
     buf = BytesIO()
     writer = animation.PillowWriter(fps=20)
-
-    ani.save(buf, writer=writer)
+    
+    # Use the writer directly to save to the buffer
+    writer.setup(ani._fig, buf)
+    ani.save(writer=writer)
+    writer.finish()
     buf.seek(0)
 
     while True:
