@@ -4,6 +4,7 @@ import matplotlib.animation as animation
 import io
 import base64
 import numpy as np
+import tempfile
 
 from simulation import simulation
 
@@ -15,16 +16,13 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/run_simulation")
+@app.route('/run_simulation')
 def run_simulation():
     param1 = request.args.get('param1')
     param2 = request.args.get('param2')
 
     # Your simulation code here
-    # For example, creating an animation with matplotlib.animation
-
     fig, ax = plt.subplots()
-    # Example data and animation setup
     x = [0]
     y = [0]
     line, = ax.plot(x, y)
@@ -37,11 +35,11 @@ def run_simulation():
 
     ani = animation.FuncAnimation(fig, update, frames=range(100), blit=True)
 
-    # Save the animation to a buffer
-    buf = io.BytesIO()
-    ani.save(buf, writer='imagemagick')
-    buf.seek(0)
-    img_data = base64.b64encode(buf.read()).decode('utf-8')
+    # Save the animation to a temporary file
+    with tempfile.NamedTemporaryFile(suffix='.gif') as temp_file:
+        ani.save(temp_file.name, writer='imagemagick')
+        temp_file.seek(0)
+        img_data = base64.b64encode(temp_file.read()).decode('utf-8')
 
     return f'<img src="data:image/gif;base64,{img_data}" />'
     # hyperparameters = request.json
