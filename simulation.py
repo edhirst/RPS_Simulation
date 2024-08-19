@@ -283,7 +283,7 @@ def build_balls(
 
 
 def simulation(number_balls: int, max_velocity: float):
-    def animate(balls: List[Ball], ax, dt, bounds, centre_bounds):
+    def animate(frame, balls: List[Ball], ax, dt, bounds, centre_bounds):
         for ball in balls:
             ball.update_position(dt, bounds)
 
@@ -384,6 +384,7 @@ def simulation(number_balls: int, max_velocity: float):
         fargs=(balls, ax, dt, bounds, centre_bounds),
         interval=20,
         blit=False,
+        cache_frame_data=False,
     )
 
     filename = 'animation.gif'
