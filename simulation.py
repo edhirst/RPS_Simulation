@@ -305,7 +305,7 @@ def simulation(param1, param2):
                                 init_func=init, blit=True, interval=50)
 
     buf = io.BytesIO()
-    ani.save(buf, format='gif')
+    ani.save(buf, writer='imagemagick')
     buf.seek(0)
     img_data = base64.b64encode(buf.read()).decode('utf-8')
     return f'<img src="data:image/gif;base64,{img_data}" />'
