@@ -298,7 +298,6 @@ def simulation(number_balls: int, max_velocity: float):
 
         # Define font style
         font = FontProperties()
-        font.set_family("copperplate")
         font.set_size(30)
         font.set_weight("bold")
 
