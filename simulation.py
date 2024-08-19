@@ -6,6 +6,8 @@ Code to simulate rock-paper-scissors swarm game
     ~ run script
 """
 
+from typing import List, Dict
+
 import matplotlib.animation as animation
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
@@ -16,7 +18,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 
 # Define the game rules
-RULES = {"rock": "scissors", "scissors": "paper", "paper": "rock"}
+RULES: Dict[str, str] = {"rock": "scissors", "scissors": "paper", "paper": "rock"}
 
 # Load images
 image_pathroot = "./Images/"
@@ -44,7 +46,7 @@ class Ball:
             self.position[1] + self.radius,  # Top
         ]
 
-    def update_position(self, dt, bounds):
+    def update_position(self, dt: int, bounds: List[int]):
         self.position += self.velocity * dt
         extent = self.calculate_extent()
 
@@ -62,12 +64,12 @@ class Ball:
         return self.image_artist
 
 
-def check_collision(ball1, ball2):
+def check_collision(ball1: Ball, ball2: Ball):
     dist = np.linalg.norm(ball1.position - ball2.position)
     return dist < (ball1.radius + ball2.radius)
 
 
-def resolve_collision(ball1, ball2, centre_bounds):
+def resolve_collision(ball1: Ball, ball2: Ball, centre_bounds: List[float]):
     if RULES[ball1.kind] == ball2.kind:
         ball2.kind = ball1.kind
         ball2.image = IMAGES[ball2.kind]
@@ -107,7 +109,7 @@ def resolve_collision(ball1, ball2, centre_bounds):
     return
 
 # Define positon overlap check function
-def is_overlapping(new_ball, balls):
+def is_overlapping(new_ball: Ball, balls: List[Ball]):
     for ball in balls:
         distance = np.linalg.norm(new_ball.position - ball.position)
         if distance < (2.01 * new_ball.radius):
@@ -115,7 +117,7 @@ def is_overlapping(new_ball, balls):
     return False
 
 
-def build_plot(bounds):
+def build_plot(bounds: List[float]):
     # Example usage
     fig, ax = plt.subplots()
     fig_manager = plt.get_current_fig_manager()
@@ -134,13 +136,13 @@ def build_plot(bounds):
 
 
 def build_balls(
-    bonus_ball,
-    bonus_radius,
-    random_balltype_init,
-    number_balls,
-    max_velocity,
-    bounds,
-    ball_radius,
+    bonus_ball: bool,
+    bonus_radius: float,
+    random_balltype_init: bool,
+    number_balls: int,
+    max_velocity: float,
+    bounds: List[float],
+    ball_radius: float,
 ):
     # Initialize balls
     balls = []
@@ -279,111 +281,135 @@ def build_balls(
     return balls
 
 
-def simulation(number_balls, max_velocity):
-    def animate(balls, ax, dt, bounds, centre_bounds):
-        for ball in balls:
-            ball.update_position(dt, bounds)
+# MOCK CODE TO TEST
+def simultation(param1, param2):
+    fig, ax = plt.subplots()
+    xdata, ydata = [], []
+    ln, = plt.plot([], [], 'r', animated=True)
 
-        for j in range(len(balls)):
-            for k in range(j + 1, len(balls)):
-                if check_collision(balls[j], balls[k]):
-                    resolve_collision(balls[j], balls[k], centre_bounds)
+    def init():
+        ax.set_xlim(0, 2 * np.pi)
+        ax.set_ylim(-1.5, 1.5)
+        return ln,
 
-        artists = []
-        for ball in balls:
-            artists.append(ball.draw(ax))
+    def update(frame):
+        xdata.append(frame)
+        ydata.append(np.sin(frame))
+        ln.set_data(xdata, ydata)
+        return ln,
 
-        # Define font style
-        font = FontProperties()
-        font.set_family("copperplate")
-        font.set_size(30)
-        font.set_weight("bold")
+    ani = animation.FuncAnimation(fig, update, frames=np.linspace(0, 2 * np.pi, 128),
+                                init_func=init, blit=True, interval=50)
 
-        # Check if all balls are the same kind
-        kinds = [ball.kind for ball in balls]
-        if len(set(kinds)) == 1:
-            winner = kinds[0]
-            ax.text(
-                0.5,
-                0.5,
-                f"{winner.capitalize()} wins!\n\n\n",
-                transform=ax.transAxes,
-                ha="center",
-                va="center",
-                color="black",
-                fontproperties=font,
-                bbox=dict(
-                    facecolor="palegreen",
-                    alpha=0.7,
-                    edgecolor="black",
-                    boxstyle="round,pad=1",
-                ),
-            )
-            # Add the winning image
-            img = IMAGES[winner]
-            imagebox = OffsetImage(img, zoom=0.3)
-            ab = AnnotationBbox(
-                imagebox,
-                (0.42, 0.35),
-                frameon=False,
-                xycoords="axes fraction",
-                box_alignment=(0.5, 0.3),
-            )
-            ax.add_artist(ab)
-            # Add the crown image
-            crown_img = mpimg.imread(image_pathroot + "crown.png")
-            crown_imagebox = OffsetImage(crown_img, zoom=0.3)
-            crown_ab = AnnotationBbox(
-                crown_imagebox,
-                (0.58, 0.35),
-                frameon=False,
-                xycoords="axes fraction",
-                box_alignment=(0.5, 0.3),
-            )
-            ax.add_artist(crown_ab)
+    ani.save('sine_wave_animation.mp4', writer='ffmpeg')
 
-            ani.event_source.stop()
-            # plt.close()
 
-        return artists
+
+# def simulation(number_balls: int, max_velocity: float):
+#     def animate(balls: List[Ball], ax, dt, bounds, centre_bounds):
+#         for ball in balls:
+#             ball.update_position(dt, bounds)
+
+#         for j in range(len(balls)):
+#             for k in range(j + 1, len(balls)):
+#                 if check_collision(balls[j], balls[k]):
+#                     resolve_collision(balls[j], balls[k], centre_bounds)
+
+#         artists = []
+#         for ball in balls:
+#             artists.append(ball.draw(ax))
+
+#         # Define font style
+#         font = FontProperties()
+#         font.set_family("copperplate")
+#         font.set_size(30)
+#         font.set_weight("bold")
+
+#         # Check if all balls are the same kind
+#         kinds = [ball.kind for ball in balls]
+#         if len(set(kinds)) == 1:
+#             winner = kinds[0]
+#             ax.text(
+#                 0.5,
+#                 0.5,
+#                 f"{winner.capitalize()} wins!\n\n\n",
+#                 transform=ax.transAxes,
+#                 ha="center",
+#                 va="center",
+#                 color="black",
+#                 fontproperties=font,
+#                 bbox=dict(
+#                     facecolor="palegreen",
+#                     alpha=0.7,
+#                     edgecolor="black",
+#                     boxstyle="round,pad=1",
+#                 ),
+#             )
+#             # Add the winning image
+#             img = IMAGES[winner]
+#             imagebox = OffsetImage(img, zoom=0.3)
+#             ab = AnnotationBbox(
+#                 imagebox,
+#                 (0.42, 0.35),
+#                 frameon=False,
+#                 xycoords="axes fraction",
+#                 box_alignment=(0.5, 0.3),
+#             )
+#             ax.add_artist(ab)
+#             # Add the crown image
+#             crown_img = mpimg.imread(image_pathroot + "crown.png")
+#             crown_imagebox = OffsetImage(crown_img, zoom=0.3)
+#             crown_ab = AnnotationBbox(
+#                 crown_imagebox,
+#                 (0.58, 0.35),
+#                 frameon=False,
+#                 xycoords="axes fraction",
+#                 box_alignment=(0.5, 0.3),
+#             )
+#             ax.add_artist(crown_ab)
+
+#             ani.event_source.stop()
+#             # plt.close()
+
+#         return artists
     
-    # Further hyperparameters
-    arena_radius = 10.0
-    ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
-    random_balltype_init = (
-        False  # ...when True the ball species are initialised completely randomly
-    )
+#     # Further hyperparameters
+#     arena_radius = 10.0
+#     ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
+#     random_balltype_init = (
+#         False  # ...when True the ball species are initialised completely randomly
+#     )
 
-    # Bonus ball hyperparameters
-    bonus_ball = False
-    bonus_radius = 3 * ball_radius
+#     # Bonus ball hyperparameters
+#     bonus_ball = False
+#     bonus_radius = 3 * ball_radius
 
-    # Other hyperparameters
-    bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
-    centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
-    dt = 0.1  # ...the timestep of the simulation
+#     # Other hyperparameters
+#     bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
+#     centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
+#     dt = 0.1  # ...the timestep of the simulation
 
-    fig, ax = build_plot(bounds)
-    balls = build_balls(
-        bonus_ball,
-        bonus_radius,
-        random_balltype_init,
-        number_balls,
-        max_velocity,
-        bounds,
-        ball_radius,
-    )
+#     fig, ax = build_plot(bounds)
+#     balls = build_balls(
+#         bonus_ball,
+#         bonus_radius,
+#         random_balltype_init,
+#         number_balls,
+#         max_velocity,
+#         bounds,
+#         ball_radius,
+#     )
 
-    # Create the animation
-    max_frames = 200
-    ani = animation.FuncAnimation(
-        fig,
-        animate,
-        fargs=(balls, ax, dt, bounds, centre_bounds),
-        frames=max_frames,
-        interval=20,
-        blit=False,
-    )
+#     # Create the animation
+#     max_frames = 200
+#     ani = animation.FuncAnimation(
+#         fig,
+#         animate,
+#         fargs=(balls, ax, dt, bounds, centre_bounds),
+#         frames=max_frames,
+#         interval=20,
+#         blit=False,
+#     )
 
-    # Show the animation
-    plt.show()
+#     # Show the animation
+#     plt.show()
