@@ -389,7 +389,7 @@ def simulation(number_balls: int, max_velocity: float):
 
     # Create a generator to yield frames
     def generate_frames():
-        for frame in range(ani.save_count):
+        for frame in range(ani._save_count):
             canvas = FigureCanvas(fig)
             canvas.draw()
             buf = BytesIO()
