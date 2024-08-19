@@ -390,7 +390,7 @@ def simulation(number_balls: int, max_velocity: float):
     buf = BytesIO()
     writer = animation.PillowWriter(fps=20)
 
-    ani.save(buf, writer=writer, fps=20)
+    ani.save(buf, writer=writer)
     buf.seek(0)
 
     while True:
