@@ -15,7 +15,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/run_simulation", methods=["POST"])
+@app.route("/run_simulation")
 def run_simulation():
     fig, ax = plt.subplots()
     xdata, ydata = [], []
