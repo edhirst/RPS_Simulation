@@ -17,29 +17,32 @@ def index():
 
 @app.route("/run_simulation")
 def run_simulation():
-    fig, ax = plt.subplots()
-    xdata, ydata = [], []
-    ln, = plt.plot([], [], 'r', animated=True)
+    param1 = request.args.get('param1')
+    param2 = request.args.get('param2')
 
-    def init():
-        ax.set_xlim(0, 2 * np.pi)
-        ax.set_ylim(-1.5, 1.5)
-        return ln,
+    # Your simulation code here
+    # For example, creating an animation with matplotlib.animation
+
+    fig, ax = plt.subplots()
+    # Example data and animation setup
+    x = [0]
+    y = [0]
+    line, = ax.plot(x, y)
 
     def update(frame):
-        xdata.append(frame)
-        ydata.append(np.sin(frame))
-        ln.set_data(xdata, ydata)
-        return ln,
+        x.append(frame)
+        y.append(frame)
+        line.set_data(x, y)
+        return line,
 
+    ani = animation.FuncAnimation(fig, update, frames=range(100), blit=True)
 
-    ani = animation.FuncAnimation(fig, update, frames=np.linspace(0, 2 * np.pi, 128),
-                                init_func=init, blit=True, interval=50)
-
+    # Save the animation to a buffer
     buf = io.BytesIO()
     ani.save(buf, format='gif')
     buf.seek(0)
     img_data = base64.b64encode(buf.read()).decode('utf-8')
+
     return f'<img src="data:image/gif;base64,{img_data}" />'
     # hyperparameters = request.json
     # # Extract hyperparameters from the request
