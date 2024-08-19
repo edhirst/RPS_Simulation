@@ -1,24 +1,177 @@
-from flask import Flask, Response, render_template, request
+# from flask import Flask, Response, render_template, request
 
-from simulation import simulation
+# from simulation import simulation
+
+# app = Flask(__name__)
+
+
+# @app.route("/")
+# def index():
+#     return render_template("index.html")
+
+
+# @app.route("/run_simulation")
+# def run_simulation():
+#     number_balls = int(request.args.get("param1"))
+#     max_velocity = float(request.args.get("param2"))
+#     return Response(
+#         simulation(number_balls, max_velocity),
+#         mimetype="multipart/x-mixed-replace; boundary=frame",
+#     )
+
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
+from flask import Flask, render_template, Response
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+import io
+from typing import List
+from simulation import Ball, check_collision, resolve_collision, IMAGES, image_pathroot, build_balls, build_plot
+from matplotlib.font_manager import FontProperties
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import matplotlib.image as mpimg
+
+
+
+
 
 app = Flask(__name__)
 
+def animate(frame, balls: List[Ball], ax, dt, bounds, centre_bounds):
+    for ball in balls:
+        ball.update_position(dt, bounds)
 
-@app.route("/")
+    for j in range(len(balls)):
+        for k in range(j + 1, len(balls)):
+            if check_collision(balls[j], balls[k]):
+                resolve_collision(balls[j], balls[k], centre_bounds)
+
+    artists = []
+    for ball in balls:
+        artists.append(ball.draw(ax))
+
+    # Define font style
+    font = FontProperties()
+    font.set_size(30)
+    font.set_weight("bold")
+
+    # Check if all balls are the same kind
+    kinds = [ball.kind for ball in balls]
+    if len(set(kinds)) == 1:
+        winner = kinds[0]
+        ax.text(
+            0.5,
+            0.5,
+            f"{winner.capitalize()} wins!\n\n\n",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            color="black",
+            fontproperties=font,
+            bbox=dict(
+                facecolor="palegreen",
+                alpha=0.7,
+                edgecolor="black",
+                boxstyle="round,pad=1",
+            ),
+        )
+        # Add the winning image
+        img = IMAGES[winner]
+        imagebox = OffsetImage(img, zoom=0.3)
+        ab = AnnotationBbox(
+            imagebox,
+            (0.42, 0.35),
+            frameon=False,
+            xycoords="axes fraction",
+            box_alignment=(0.5, 0.3),
+        )
+        ax.add_artist(ab)
+        # Add the crown image
+        crown_img = mpimg.imread(image_pathroot + "crown.png")
+        crown_imagebox = OffsetImage(crown_img, zoom=0.3)
+        crown_ab = AnnotationBbox(
+            crown_imagebox,
+            (0.58, 0.35),
+            frameon=False,
+            xycoords="axes fraction",
+            box_alignment=(0.5, 0.3),
+        )
+        ax.add_artist(crown_ab)
+
+        ani.event_source.stop()
+
+    return artists
+
+# Parameters
+number_balls = 10  # ...the number of balls in the simulation
+max_velocity = 2.0  # ...the maximum velocity of the balls
+
+# Further hyperparameters
+arena_radius = 10.0
+ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
+random_balltype_init = (
+    False  # ...when True the ball species are initialised completely randomly
+)
+
+# Bonus ball hyperparameters
+bonus_ball = False
+bonus_radius = 3 * ball_radius
+
+# Other hyperparameters
+bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
+centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
+dt = 0.1  # ...the timestep of the simulation
+
+fig, ax = build_plot(bounds)
+balls = build_balls(
+    bonus_ball,
+    bonus_radius,
+    random_balltype_init,
+    number_balls,
+    max_velocity,
+    bounds,
+    ball_radius,
+)
+
+# Create the animation
+ani = animation.FuncAnimation(
+    fig,
+    animate,
+    fargs=(balls, ax, dt, bounds, centre_bounds),
+    interval=20,
+    blit=False,
+    cache_frame_data=False,
+    save_count=1000,
+)
+
+@app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-
-@app.route("/run_simulation")
+@app.route('/run_simulation')
 def run_simulation():
-    number_balls = int(request.args.get("param1"))
-    max_velocity = float(request.args.get("param2"))
-    return Response(
-        simulation(number_balls, max_velocity),
-        mimetype="multipart/x-mixed-replace; boundary=frame",
-    )
+    def generate_frames():
+        while True:  # Run the animation for 200 frames
+            animate(
+                None,
+                balls,
+                ax,
+                dt,
+                bounds,
+                centre_bounds,
+            )  # Update the ball positions
+            buf = io.BytesIO()
+            plt.savefig(buf, format='jpeg')
+            buf.seek(0)
+            frame = buf.getvalue()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            buf.close()
 
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
