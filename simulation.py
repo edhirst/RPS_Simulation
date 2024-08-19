@@ -22,7 +22,7 @@ from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 RULES: Dict[str, str] = {"rock": "scissors", "scissors": "paper", "paper": "rock"}
 
 # Load images
-image_pathroot = "./Images/"
+image_pathroot = "./static/images/"
 IMAGES = {
     "rock": mpimg.imread(image_pathroot + "rock.png"),
     "paper": mpimg.imread(image_pathroot + "paper.png"),
