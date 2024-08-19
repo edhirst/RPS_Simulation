@@ -22,19 +22,23 @@ form {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 300px;
-    text-align: center;
+    text-align: left;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 label {
-    display: block;
-    margin-bottom: 8px;
+    flex: 2;
     color: #555;
 }
 
 input[type="text"] {
-    width: calc(100% - 20px);
+    flex: 1;
     padding: 8px;
-    margin-bottom: 20px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }

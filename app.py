@@ -89,25 +89,31 @@ def run_simulation():
     try:
         number_balls = int(request.args.get("param1", 10))
         max_velocity = float(request.args.get("param2", 2.0))
+        arena_radius = int(request.args.get("param3", 20.0))
 
         # Error handling for number of balls
         if number_balls < 1:
             number_balls = 1
-        elif number_balls > 50:
-            number_balls = 50
+        elif number_balls > 75:
+            number_balls = 75
 
         # Error handling for max velocity
         if max_velocity < 0.1:
             max_velocity = 0.1
         elif max_velocity > 10.0:
             max_velocity = 10.0
-
+        
+        if arena_radius * 5 < number_balls:
+            arena_radius = number_balls / 4
+        if arena_radius > 40:
+            arena_radius = 40
+            
     except ValueError:
         number_balls = 10
         max_velocity = 2.0
+        arena_radius = 20.0
 
     # Further hyperparameters
-    arena_radius = int(request.args.get("param3", 20.0))
     ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
     random_balltype_init = (
         False  # ...when True the ball species are initialised completely randomly
