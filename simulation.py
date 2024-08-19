@@ -12,7 +12,6 @@ from typing import Dict, List
 import matplotlib.animation as animation
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-
 # Import libraries
 import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -281,6 +280,3 @@ def build_balls(
                 balls.append(new_ball)
 
     return balls
-
-
-

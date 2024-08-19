@@ -1,15 +1,19 @@
-from flask import Flask, render_template, Response, request
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import numpy as np
 import io
 from typing import List
-from simulation import Ball, check_collision, resolve_collision, IMAGES, image_pathroot, build_balls, build_plot
-from matplotlib.font_manager import FontProperties
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
+import matplotlib.animation as animation
 import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import numpy as np
+from flask import Flask, Response, render_template, request
+from matplotlib.font_manager import FontProperties
+from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+
+from simulation import (IMAGES, Ball, build_balls, build_plot, check_collision,
+                        image_pathroot, resolve_collision)
 
 app = Flask(__name__)
+
 
 def animate(frame, balls: List[Ball], ax, dt, bounds, centre_bounds):
     for ball in balls:
@@ -74,15 +78,17 @@ def animate(frame, balls: List[Ball], ax, dt, bounds, centre_bounds):
 
     return artists
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/run_simulation')
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/run_simulation")
 def run_simulation():
     try:
-        number_balls = int(request.args.get('param1', 10))
-        max_velocity = float(request.args.get('param2', 2.0))
+        number_balls = int(request.args.get("param1", 10))
+        max_velocity = float(request.args.get("param2", 2.0))
 
         # Error handling for number of balls
         if number_balls < 1:
@@ -101,9 +107,11 @@ def run_simulation():
         max_velocity = 2.0
 
     # Further hyperparameters
-    arena_radius = 10.0
+    arena_radius = int(request.args.get("param3", 20.0))
     ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
-    random_balltype_init = False  # ...when True the ball species are initialised completely randomly
+    random_balltype_init = (
+        False  # ...when True the ball species are initialised completely randomly
+    )
 
     # Bonus ball hyperparameters
     bonus_ball = False
@@ -136,14 +144,16 @@ def run_simulation():
                 centre_bounds,
             )  # Update the ball positions
             buf = io.BytesIO()
-            plt.savefig(buf, format='jpeg')
+            plt.savefig(buf, format="jpeg")
             buf.seek(0)
             frame = buf.getvalue()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
             buf.close()
 
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(
+        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)
