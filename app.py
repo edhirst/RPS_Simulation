@@ -14,7 +14,7 @@ def index():
 def run_simulation():
     number_balls = int(request.args.get("param1"))
     max_velocity = float(request.args.get("param2"))
-    return Response(simulation(number_balls, max_velocity), mimetype="image/gif")
+    return Response(simulation(number_balls, max_velocity), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
 if __name__ == "__main__":

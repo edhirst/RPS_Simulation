@@ -385,16 +385,15 @@ def simulation(number_balls: int, max_velocity: float):
         interval=20,
         blit=False,
         cache_frame_data=False,
-        save_count=100,
+        save_count=1000,
     )
 
     # Create a generator to yield frames
     def generate_frames():
         for frame in range(ani._save_count):
-            canvas = FigureCanvas(fig)
-            canvas.draw()
+            fig.canvas.draw()
             buf = BytesIO()
-            canvas.print_png(buf)
+            fig.savefig(buf, format='png')
             buf.seek(0)
             yield (
                 b"--frame\r\n" b"Content-Type: image/png\r\n\r\n" + buf.read() + b"\r\n"
