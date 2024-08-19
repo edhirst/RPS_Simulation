@@ -10,6 +10,7 @@ from typing import List
 from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.image as mpimg
+from matplotlib.animation import PillowWriter
 
 # from simulation import simulation
 
@@ -34,7 +35,7 @@ def run_simulation():
     # result = simulation(param1, param2)
     # return jsonify(result)
 
-    def animate(balls: List[Ball], ax, dt, bounds, centre_bounds):
+    def animate(frame, balls: List[Ball], ax, dt, bounds, centre_bounds):
         for ball in balls:
             ball.update_position(dt, bounds)
 
@@ -141,7 +142,7 @@ def run_simulation():
 
     # Save the animation to a temporary file
     with tempfile.NamedTemporaryFile(suffix='.gif') as temp_file:
-        ani.save(temp_file.name, writer='imagemagick')
+        ani.save(temp_file.name, writer=PillowWriter(fps=20))
         temp_file.seek(0)
         img_data = base64.b64encode(temp_file.read()).decode('utf-8')
 
