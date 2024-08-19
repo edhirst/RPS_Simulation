@@ -1,29 +1,4 @@
-# from flask import Flask, Response, render_template, request
-
-# from simulation import simulation
-
-# app = Flask(__name__)
-
-
-# @app.route("/")
-# def index():
-#     return render_template("index.html")
-
-
-# @app.route("/run_simulation")
-# def run_simulation():
-#     number_balls = int(request.args.get("param1"))
-#     max_velocity = float(request.args.get("param2"))
-#     return Response(
-#         simulation(number_balls, max_velocity),
-#         mimetype="multipart/x-mixed-replace; boundary=frame",
-#     )
-
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -33,10 +8,6 @@ from simulation import Ball, check_collision, resolve_collision, IMAGES, image_p
 from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.image as mpimg
-
-
-
-
 
 app = Flask(__name__)
 
@@ -101,51 +72,7 @@ def animate(frame, balls: List[Ball], ax, dt, bounds, centre_bounds):
         )
         ax.add_artist(crown_ab)
 
-        ani.event_source.stop()
-
     return artists
-
-# Parameters
-number_balls = 10  # ...the number of balls in the simulation
-max_velocity = 2.0  # ...the maximum velocity of the balls
-
-# Further hyperparameters
-arena_radius = 10.0
-ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
-random_balltype_init = (
-    False  # ...when True the ball species are initialised completely randomly
-)
-
-# Bonus ball hyperparameters
-bonus_ball = False
-bonus_radius = 3 * ball_radius
-
-# Other hyperparameters
-bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
-centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
-dt = 0.1  # ...the timestep of the simulation
-
-fig, ax = build_plot(bounds)
-balls = build_balls(
-    bonus_ball,
-    bonus_radius,
-    random_balltype_init,
-    number_balls,
-    max_velocity,
-    bounds,
-    ball_radius,
-)
-
-# Create the animation
-ani = animation.FuncAnimation(
-    fig,
-    animate,
-    fargs=(balls, ax, dt, bounds, centre_bounds),
-    interval=20,
-    blit=False,
-    cache_frame_data=False,
-    save_count=1000,
-)
 
 @app.route('/')
 def index():
@@ -153,8 +80,53 @@ def index():
 
 @app.route('/run_simulation')
 def run_simulation():
+    try:
+        number_balls = int(request.args.get('param1', 10))
+        max_velocity = float(request.args.get('param2', 2.0))
+
+        # Error handling for number of balls
+        if number_balls < 1:
+            number_balls = 1
+        elif number_balls > 50:
+            number_balls = 50
+
+        # Error handling for max velocity
+        if max_velocity < 0.1:
+            max_velocity = 0.1
+        elif max_velocity > 10.0:
+            max_velocity = 10.0
+
+    except ValueError:
+        number_balls = 10
+        max_velocity = 2.0
+
+    # Further hyperparameters
+    arena_radius = 10.0
+    ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
+    random_balltype_init = False  # ...when True the ball species are initialised completely randomly
+
+    # Bonus ball hyperparameters
+    bonus_ball = False
+    bonus_radius = 3 * ball_radius
+
+    # Other hyperparameters
+    bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
+    centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
+    dt = 0.1  # ...the timestep of the simulation
+
+    fig, ax = build_plot(bounds)
+    balls = build_balls(
+        bonus_ball,
+        bonus_radius,
+        random_balltype_init,
+        number_balls,
+        max_velocity,
+        bounds,
+        ball_radius,
+    )
+
     def generate_frames():
-        while True:  # Run the animation for 200 frames
+        while True:
             animate(
                 None,
                 balls,
