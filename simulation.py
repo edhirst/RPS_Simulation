@@ -6,7 +6,7 @@ Code to simulate rock-paper-scissors swarm game
     ~ run script
 """
 
-from io import BytesIO
+from flask import send_file
 from typing import Dict, List
 
 import matplotlib.animation as animation
@@ -386,18 +386,8 @@ def simulation(number_balls: int, max_velocity: float):
         blit=False,
     )
 
-    # Save animation to a BytesIO buffer and yield frames
-    buf = BytesIO()
+    filename = 'animation.gif'
     writer = animation.PillowWriter(fps=20)
     
-    # Use the writer directly to save to the buffer
-    writer.setup(ani._fig, buf)
-    ani.save(writer=writer)
-    writer.finish()
-    buf.seek(0)
-
-    while True:
-        chunk = buf.read(1024)
-        if not chunk:
-            break
-        yield chunk
+    ani.save(filename, writer=writer)
+    return send_file(filename, mimetype='image/gif')
