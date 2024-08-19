@@ -385,6 +385,7 @@ def simulation(number_balls: int, max_velocity: float):
         interval=20,
         blit=False,
         cache_frame_data=False,
+        save_count=100,
     )
 
     # Create a generator to yield frames
