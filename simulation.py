@@ -12,6 +12,7 @@ from typing import Dict, List
 import matplotlib.animation as animation
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+
 # Import libraries
 import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -346,7 +347,6 @@ def simulation(number_balls: int, max_velocity: float):
             ax.add_artist(crown_ab)
 
             ani.event_source.stop()
-            # plt.close()
 
         return artists
 
@@ -377,23 +377,24 @@ def simulation(number_balls: int, max_velocity: float):
         ball_radius,
     )
 
-    # Create the animation
-    ani = animation.FuncAnimation(
-        fig,
-        animate,
-        fargs=(balls, ax, dt, bounds, centre_bounds),
-        interval=20,
-        blit=False,
-        cache_frame_data=False,
-        save_count=1000,
-    )
 
     # Create a generator to yield frames
     def generate_frames():
+        # Create the animation
+        ani = animation.FuncAnimation(
+            fig,
+            animate,
+            fargs=(balls, ax, dt, bounds, centre_bounds),
+            interval=20,
+            blit=False,
+            cache_frame_data=False,
+            save_count=1000,
+        )
+
         for frame in range(ani._save_count):
             fig.canvas.draw()
             buf = BytesIO()
-            fig.savefig(buf, format='png')
+            fig.savefig(buf, format="png")
             buf.seek(0)
             yield (
                 b"--frame\r\n" b"Content-Type: image/png\r\n\r\n" + buf.read() + b"\r\n"
