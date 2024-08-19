@@ -6,14 +6,12 @@ Code to simulate rock-paper-scissors swarm game
     ~ run script
 """
 
-from typing import List, Dict
+from io import BytesIO
+from typing import Dict, List
 
 import matplotlib.animation as animation
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-import io
-import base64
-
 # Import libraries
 import numpy as np
 from matplotlib.font_manager import FontProperties
@@ -109,6 +107,7 @@ def resolve_collision(ball1: Ball, ball2: Ball, centre_bounds: List[float]):
         ball2.position = np.clip(ball2.position, *centre_bounds)
 
     return
+
 
 # Define positon overlap check function
 def is_overlapping(new_ball: Ball, balls: List[Ball]):
@@ -283,111 +282,119 @@ def build_balls(
     return balls
 
 
-# def simulation(number_balls: int, max_velocity: float):
-#     def animate(balls: List[Ball], ax, dt, bounds, centre_bounds):
-#         for ball in balls:
-#             ball.update_position(dt, bounds)
+def simulation(number_balls: int, max_velocity: float):
+    def animate(balls: List[Ball], ax, dt, bounds, centre_bounds):
+        for ball in balls:
+            ball.update_position(dt, bounds)
 
-#         for j in range(len(balls)):
-#             for k in range(j + 1, len(balls)):
-#                 if check_collision(balls[j], balls[k]):
-#                     resolve_collision(balls[j], balls[k], centre_bounds)
+        for j in range(len(balls)):
+            for k in range(j + 1, len(balls)):
+                if check_collision(balls[j], balls[k]):
+                    resolve_collision(balls[j], balls[k], centre_bounds)
 
-#         artists = []
-#         for ball in balls:
-#             artists.append(ball.draw(ax))
+        artists = []
+        for ball in balls:
+            artists.append(ball.draw(ax))
 
-#         # Define font style
-#         font = FontProperties()
-#         font.set_family("copperplate")
-#         font.set_size(30)
-#         font.set_weight("bold")
+        # Define font style
+        font = FontProperties()
+        font.set_family("copperplate")
+        font.set_size(30)
+        font.set_weight("bold")
 
-#         # Check if all balls are the same kind
-#         kinds = [ball.kind for ball in balls]
-#         if len(set(kinds)) == 1:
-#             winner = kinds[0]
-#             ax.text(
-#                 0.5,
-#                 0.5,
-#                 f"{winner.capitalize()} wins!\n\n\n",
-#                 transform=ax.transAxes,
-#                 ha="center",
-#                 va="center",
-#                 color="black",
-#                 fontproperties=font,
-#                 bbox=dict(
-#                     facecolor="palegreen",
-#                     alpha=0.7,
-#                     edgecolor="black",
-#                     boxstyle="round,pad=1",
-#                 ),
-#             )
-#             # Add the winning image
-#             img = IMAGES[winner]
-#             imagebox = OffsetImage(img, zoom=0.3)
-#             ab = AnnotationBbox(
-#                 imagebox,
-#                 (0.42, 0.35),
-#                 frameon=False,
-#                 xycoords="axes fraction",
-#                 box_alignment=(0.5, 0.3),
-#             )
-#             ax.add_artist(ab)
-#             # Add the crown image
-#             crown_img = mpimg.imread(image_pathroot + "crown.png")
-#             crown_imagebox = OffsetImage(crown_img, zoom=0.3)
-#             crown_ab = AnnotationBbox(
-#                 crown_imagebox,
-#                 (0.58, 0.35),
-#                 frameon=False,
-#                 xycoords="axes fraction",
-#                 box_alignment=(0.5, 0.3),
-#             )
-#             ax.add_artist(crown_ab)
+        # Check if all balls are the same kind
+        kinds = [ball.kind for ball in balls]
+        if len(set(kinds)) == 1:
+            winner = kinds[0]
+            ax.text(
+                0.5,
+                0.5,
+                f"{winner.capitalize()} wins!\n\n\n",
+                transform=ax.transAxes,
+                ha="center",
+                va="center",
+                color="black",
+                fontproperties=font,
+                bbox=dict(
+                    facecolor="palegreen",
+                    alpha=0.7,
+                    edgecolor="black",
+                    boxstyle="round,pad=1",
+                ),
+            )
+            # Add the winning image
+            img = IMAGES[winner]
+            imagebox = OffsetImage(img, zoom=0.3)
+            ab = AnnotationBbox(
+                imagebox,
+                (0.42, 0.35),
+                frameon=False,
+                xycoords="axes fraction",
+                box_alignment=(0.5, 0.3),
+            )
+            ax.add_artist(ab)
+            # Add the crown image
+            crown_img = mpimg.imread(image_pathroot + "crown.png")
+            crown_imagebox = OffsetImage(crown_img, zoom=0.3)
+            crown_ab = AnnotationBbox(
+                crown_imagebox,
+                (0.58, 0.35),
+                frameon=False,
+                xycoords="axes fraction",
+                box_alignment=(0.5, 0.3),
+            )
+            ax.add_artist(crown_ab)
 
-#             ani.event_source.stop()
-#             # plt.close()
+            ani.event_source.stop()
+            # plt.close()
 
-#         return artists
-    
-#     # Further hyperparameters
-#     arena_radius = 10.0
-#     ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
-#     random_balltype_init = (
-#         False  # ...when True the ball species are initialised completely randomly
-#     )
+        return artists
 
-#     # Bonus ball hyperparameters
-#     bonus_ball = False
-#     bonus_radius = 3 * ball_radius
+    # Further hyperparameters
+    arena_radius = 10.0
+    ball_radius = min(1.0, np.sqrt((4 * arena_radius) * 0.35 / number_balls))
+    random_balltype_init = (
+        False  # ...when True the ball species are initialised completely randomly
+    )
 
-#     # Other hyperparameters
-#     bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
-#     centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
-#     dt = 0.1  # ...the timestep of the simulation
+    # Bonus ball hyperparameters
+    bonus_ball = False
+    bonus_radius = 3 * ball_radius
 
-#     fig, ax = build_plot(bounds)
-#     balls = build_balls(
-#         bonus_ball,
-#         bonus_radius,
-#         random_balltype_init,
-#         number_balls,
-#         max_velocity,
-#         bounds,
-#         ball_radius,
-#     )
+    # Other hyperparameters
+    bounds = [-arena_radius, arena_radius, -arena_radius, arena_radius]
+    centre_bounds = [ball_radius - arena_radius, arena_radius - ball_radius]
+    dt = 0.1  # ...the timestep of the simulation
 
-#     # Create the animation
-#     max_frames = 200
-#     ani = animation.FuncAnimation(
-#         fig,
-#         animate,
-#         fargs=(balls, ax, dt, bounds, centre_bounds),
-#         frames=max_frames,
-#         interval=20,
-#         blit=False,
-#     )
+    fig, ax = build_plot(bounds)
+    balls = build_balls(
+        bonus_ball,
+        bonus_radius,
+        random_balltype_init,
+        number_balls,
+        max_velocity,
+        bounds,
+        ball_radius,
+    )
 
-#     # Show the animation
-#     plt.show()
+    # Create the animation
+    ani = animation.FuncAnimation(
+        fig,
+        animate,
+        fargs=(balls, ax, dt, bounds, centre_bounds),
+        interval=20,
+        blit=False,
+    )
+
+    # Save animation to a BytesIO buffer and yield frames
+    buf = BytesIO()
+    writer = animation.PillowWriter(fps=20)
+
+    ani.save(buf, writer=writer, fps=20)
+    buf.seek(0)
+
+    while True:
+        chunk = buf.read(1024)
+        if not chunk:
+            break
+        yield chunk
