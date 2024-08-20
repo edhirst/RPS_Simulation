@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPS-off</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Rock-Paper-Scissors</h1>
+    <form id="simulation-form">
+        <div class="form-group">
+            <label for="param1">Number of balls:</label>
+            <input type="text" id="param1" name="param1" value="10">
+        </div>
+        <div class="form-group">
+            <label for="param2">Max velocity:</label>
+            <input type="text" id="param2" name="param2" value="1">
+        </div>
+        <div class="form-group">
+            <label for="param3">Arena radius:</label>
+            <input type="text" id="param3" name="param3" value="10">
+        </div>
+        <button type="submit">Run</button>
+    </form>
+    <div id="result">
+        <img src="" id="animation" style="display:none;">
+    </div>
+
+    <script>
+        document.getElementById('simulation-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const param1 = document.getElementById('param1').value;
+            const param2 = document.getElementById('param2').value;
+            const param3 = document.getElementById('param3').value;
+
+            const url = `/run_simulation?param1=${encodeURIComponent(param1)}&param2=${encodeURIComponent(param2)}&param3=${encodeURIComponent(param3)}`;
+            document.getElementById('animation').src = url;
+            document.getElementById('animation').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
