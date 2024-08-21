@@ -8,7 +8,6 @@ import numpy as np
 from flask import Flask, Response, render_template, request
 from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
-import logging
 
 from simulation import (IMAGES, Ball, build_balls, build_plot, check_collision,
                         image_pathroot, resolve_collision)
@@ -141,7 +140,6 @@ def run_simulation():
     )
 
     def generate_frames():
-        logging.basicConfig(level=logging.DEBUG)
         while True:
             animate(
                 None,
