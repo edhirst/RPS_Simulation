@@ -8,6 +8,7 @@ import numpy as np
 from flask import Flask, Response, render_template, request
 from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+import logging
 
 from simulation import (IMAGES, Ball, build_balls, build_plot, check_collision,
                         image_pathroot, resolve_collision)
@@ -102,12 +103,12 @@ def run_simulation():
             max_velocity = 0.1
         elif max_velocity > 10.0:
             max_velocity = 10.0
-        
+
         if arena_radius * 5 < number_balls:
             arena_radius = number_balls / 4
         if arena_radius > 40:
             arena_radius = 40
-            
+
     except ValueError:
         number_balls = 10
         max_velocity = 2.0
@@ -140,20 +141,25 @@ def run_simulation():
     )
 
     def generate_frames():
+        logging.basicConfig(level=logging.DEBUG)
         while True:
-            animate(
-                None,
-                balls,
-                ax,
-                dt,
-                bounds,
-                centre_bounds,
-            )  # Update the ball positions
-            buf = io.BytesIO()
-            plt.savefig(buf, format="jpeg")
-            buf.seek(0)
-            frame = buf.getvalue()
-            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+            try:
+                animate(
+                    None,
+                    balls,
+                    ax,
+                    dt,
+                    bounds,
+                    centre_bounds,
+                )  # Update the ball positions
+                buf = io.BytesIO()
+                plt.savefig(buf, format="jpeg")
+                plt.close()
+                buf.seek(0)
+                frame = buf.getvalue()
+                yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+            except Exception as e:
+                logging.exception(f"Error generating frame {e}")
             buf.close()
 
     return Response(
