@@ -143,23 +143,19 @@ def run_simulation():
     def generate_frames():
         logging.basicConfig(level=logging.DEBUG)
         while True:
-            try:
-                animate(
-                    None,
-                    balls,
-                    ax,
-                    dt,
-                    bounds,
-                    centre_bounds,
-                )  # Update the ball positions
-                buf = io.BytesIO()
-                plt.savefig(buf, format="jpeg")
-                plt.close()
-                buf.seek(0)
-                frame = buf.getvalue()
-                yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
-            except Exception as e:
-                logging.exception(f"Error generating frame {e}")
+            animate(
+                None,
+                balls,
+                ax,
+                dt,
+                bounds,
+                centre_bounds,
+            )  # Update the ball positions
+            buf = io.BytesIO()
+            plt.savefig(buf, format="jpeg")
+            buf.seek(0)
+            frame = buf.getvalue()
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
             buf.close()
 
     return Response(
