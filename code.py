@@ -16,8 +16,9 @@ from matplotlib.font_manager import FontProperties
 
 # Main hyperparameters
 number_balls = 10
-max_velocity = 2.
+max_velocity = 1.
 save = False
+max_frames = 200
 
 # Further hyperparameters
 arena_radius = 10.
@@ -47,6 +48,7 @@ images = {
     'rock': mpimg.imread(image_pathroot+'rock.png'),
     'paper': mpimg.imread(image_pathroot+'paper.png'),
     'scissors': mpimg.imread(image_pathroot+'scissors.png'),
+    'bonus': mpimg.imread(image_pathroot+'face.png')
 }
 
 # Define font style
@@ -56,8 +58,9 @@ font.set_size(30)
 font.set_weight('bold')
 
 class Ball:
-    def __init__(self, kind, radius=1., position=None, velocity=None):
+    def __init__(self, kind, inert=False, radius=1., position=None, velocity=None):
         self.kind = kind
+        self.inert = inert
         self.radius = float(radius)
         self.position = np.array(position if position is not None else [0., 0.])
         self.velocity = np.array(velocity if velocity is not None else [0., 0.])
@@ -65,7 +68,7 @@ class Ball:
         self.image_artist = None
 
     def calculate_extent(self):
-        return [
+       return [
             self.position[0] - self.radius,  # Left
             self.position[0] + self.radius,  # Right
             self.position[1] - self.radius,  # Bottom
@@ -94,12 +97,13 @@ def check_collision(ball1, ball2):
     return dist < (ball1.radius + ball2.radius)
 
 def resolve_collision(ball1, ball2):
-    if rules[ball1.kind] == ball2.kind:
-        ball2.kind = ball1.kind
-        ball2.image = images[ball2.kind]
-    elif rules[ball2.kind] == ball1.kind:
-        ball1.kind = ball2.kind
-        ball1.image = images[ball1.kind]
+    if not (ball1.inert or ball2.inert):
+        if rules[ball1.kind] == ball2.kind:
+            ball2.kind = ball1.kind
+            ball2.image = images[ball2.kind]
+        elif rules[ball2.kind] == ball1.kind:
+            ball1.kind = ball2.kind
+            ball1.image = images[ball1.kind]
         
     if not bounce:
         return
@@ -148,9 +152,12 @@ def animate(i, balls, ax, dt, bounds):
         artists.append(ball.draw(ax))
         
     # Check if all balls are the same kind
-    kinds = [ball.kind for ball in balls]
+    if bonus_ball:
+        kinds = [ball.kind for ball in balls[1:]]
+    else:
+        kinds = [ball.kind for ball in balls]
     if len(set(kinds)) == 1:
-        winner = kinds[0]
+        winner = kinds[-1]
         ax.text(0.5, 0.5, f'{winner.capitalize()} wins!\n\n\n', transform=ax.transAxes,
                 ha='center', va='center', color='black', fontproperties=font,
                 bbox=dict(facecolor='palegreen', alpha=0.7, edgecolor='black', boxstyle='round,pad=1'))
@@ -196,13 +203,14 @@ def is_overlapping(new_ball, balls):
 # Initialize balls
 balls = []
 if bonus_ball:
-    balls.append(Ball(kind=list(images.keys())[0], radius=bonus_radius, position=np.zeros(2), velocity=np.zeros(2)))
+    #balls.append(Ball(kind=list(images.keys())[0], radius=bonus_radius, position=np.zeros(2), velocity=np.zeros(2)))
+    balls.append(Ball(kind='bonus', inert=True, radius=bonus_radius, position=np.zeros(2), velocity=np.zeros(2)))
 
 # Random types
 if random_balltype_init:
     for ball in range(number_balls):
         overlap = True
-        kind = np.random.choice(list(images.keys()))
+        kind = np.random.choice(list(rules.keys()))
         velocity = np.array([np.random.uniform(-max_velocity, max_velocity), np.random.uniform(-max_velocity, max_velocity)])
         while overlap:
             position = np.array([np.random.uniform(bounds[0]+ball_radius*1.01, bounds[1]-ball_radius*1.01), np.random.uniform(bounds[2]+ball_radius*1.01, bounds[3]-ball_radius*1.01)])
@@ -223,7 +231,7 @@ else:
         
     if number_balls%3 == 1:
         overlap = True
-        kind = np.random.choice(list(images.keys()))
+        kind = np.random.choice(list(rules.keys()))
         velocity = np.array([np.random.uniform(-max_velocity, max_velocity), np.random.uniform(-max_velocity, max_velocity)])
         while overlap:
             position = np.array([np.random.uniform(bounds[0]+ball_radius*1.01, bounds[1]-ball_radius*1.01), np.random.uniform(bounds[2]+ball_radius*1.01, bounds[3]-ball_radius*1.01)])
@@ -232,7 +240,7 @@ else:
         balls.append(new_ball)
         
     elif number_balls%3 == 2:
-        kinds = np.random.choice(list(images.keys()),2,replace=False)
+        kinds = np.random.choice(list(rules.keys()),2,replace=False)
         for kind in kinds:
             overlap = True
             velocity = np.array([np.random.uniform(-max_velocity, max_velocity), np.random.uniform(-max_velocity, max_velocity)])
@@ -243,7 +251,6 @@ else:
             balls.append(new_ball)
 
 # Create the animation
-max_frames = 200
 ani = animation.FuncAnimation(fig, animate, fargs=(balls, ax, dt, bounds), frames=max_frames, interval=20, blit=False)
 
 # Save the animation
