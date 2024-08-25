@@ -158,18 +158,18 @@ def animate(i, balls, ax, dt, bounds):
         kinds = [ball.kind for ball in balls]
     if len(set(kinds)) == 1:
         winner = kinds[-1]
-        ax.text(0.5, 0.5, f'{winner.capitalize()} wins!\n\n\n', transform=ax.transAxes,
+        ax.text(0.5, 0.5, f'{winner.capitalize()} wins!\n\n\n\n', transform=ax.transAxes,
                 ha='center', va='center', color='black', fontproperties=font,
                 bbox=dict(facecolor='palegreen', alpha=0.7, edgecolor='black', boxstyle='round,pad=1'))
         # Add the winning image
         img = images[winner]
         imagebox = OffsetImage(img, zoom=0.3)
-        ab = AnnotationBbox(imagebox, (0.42, 0.35), frameon=False, xycoords='axes fraction', box_alignment=(0.5, 0.3))
+        ab = AnnotationBbox(imagebox, (0.42, 0.45), frameon=False, xycoords='axes fraction', box_alignment=(0.5, 0.4))
         ax.add_artist(ab)
         # Add the crown image
         crown_img = mpimg.imread(image_pathroot+'crown.png')
         crown_imagebox = OffsetImage(crown_img, zoom=0.3)
-        crown_ab = AnnotationBbox(crown_imagebox, (0.58, 0.35), frameon=False, xycoords='axes fraction', box_alignment=(0.5, 0.3))
+        crown_ab = AnnotationBbox(crown_imagebox, (0.58, 0.45), frameon=False, xycoords='axes fraction', box_alignment=(0.5, 0.4))
         ax.add_artist(crown_ab)
                 
         ani.event_source.stop()
