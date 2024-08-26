@@ -27,7 +27,7 @@ random_balltype_init = False #...when True the ball species are initialised comp
 bounce = True                #...when False balls only bounce off the boundary and not each other
 
 # Bonus ball hyperparameters
-bonus_ball = False
+bonus_ball = True
 bonus_radius = 3*ball_radius
 
 # Other hyperparameters
@@ -48,7 +48,7 @@ images = {
     'rock': mpimg.imread(image_pathroot+'rock.png'),
     'paper': mpimg.imread(image_pathroot+'paper.png'),
     'scissors': mpimg.imread(image_pathroot+'scissors.png'),
-    'bonus': mpimg.imread(image_pathroot+'face.png')
+    'bonus': mpimg.imread(image_pathroot+'rage.png')
 }
 
 # Define font style
