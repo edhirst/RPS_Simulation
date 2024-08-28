@@ -25,6 +25,7 @@ arena_radius = 10.
 ball_radius = min(1.,np.sqrt((4*arena_radius)*0.35/number_balls))
 random_balltype_init = False #...when True the ball species are initialised completely randomly
 bounce = True                #...when False balls only bounce off the boundary and not each other
+bbw = False
 
 # Bonus ball hyperparameters
 bonus_ball = True
@@ -43,12 +44,14 @@ rules = {
 }
 
 # Load images
+extension = ""
+if bbw: extension = "_"
 image_pathroot = './Images/'
 images = {
-    'rock': mpimg.imread(image_pathroot+'rock.png'),
-    'paper': mpimg.imread(image_pathroot+'paper.png'),
-    'scissors': mpimg.imread(image_pathroot+'scissors.png'),
-    'bonus': mpimg.imread(image_pathroot+'rage.png')
+    "rock": mpimg.imread(image_pathroot+f"rock{extension}.png"),
+    "paper": mpimg.imread(image_pathroot+f"rock{extension}.png"),
+    "scissors": mpimg.imread(image_pathroot+f"rock{extension}.png"),
+    "bonus": mpimg.imread(image_pathroot+'rage.png')
 }
 
 # Define font style
